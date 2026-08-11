@@ -1,0 +1,3 @@
+Qual é o valor médio registrado na coluna "total"?
+
+R$ 28.704,99 (valor exato: 28704,992077227675)
