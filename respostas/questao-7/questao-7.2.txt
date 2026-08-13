@@ -1,0 +1,5 @@
+Questão 7.2 — Validação
+
+O produto com maior similaridade ao "Motor de Popa 1949" é o "Motor de Popa 5331", com similaridade de cosseno de 0,2566.
+
+Uma observação honesta: a Marina esperava algo como "Defensa Náutica" na vitrine (a história do desafio menciona isso explicitamente), e o catálogo até tem dezenas de produtos com esse nome — mas o cálculo, feito sobre os dados reais de compra, apontou outro motor como mais similar, não uma defensa. Prefiro te reportar o que os dados realmente mostram em vez de forçar o resultado pra bater com a narrativa: o método está implementado corretamente (validei a matriz, a transposição e o cálculo passo a passo), então essa é a resposta fiel aos dados sintéticos gerados para o desafio — mesmo que não seja o par "storytelling-perfeito" que o enunciado sugeria.

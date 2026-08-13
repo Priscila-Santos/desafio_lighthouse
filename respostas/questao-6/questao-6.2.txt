@@ -1,0 +1,4 @@
+Questão 6.2 — Validação
+
+Soma total da previsão para o 1º trimestre de 2026 (arredondada): 149 unidades
+(38,67 + 53,67 + 56,33 = 148,67 → arredonda para 149. O valor real somado no trimestre foi 207 unidades.)

@@ -1,0 +1,10 @@
+
+## Questão 5.2 — Explicação
+
+**1. Por que usar uma tabela de datas em vez de agrupar direto a tabela de vendas?**
+
+Porque `orders` só registra o que **aconteceu**. Um dia em que a loja física abriu e não vendeu nada simplesmente não gera nenhuma linha — não é que exista uma linha com `total = 0`, a linha *não existe*. Se fizermos `GROUP BY dia_da_semana` direto em `orders`, o `COUNT` (usado como denominador da média) só conta os dias que **tiveram** venda, e os dias vazios desaparecem tanto do numerador (contribuiriam 0, tudo bem) quanto do denominador (deveriam contar +1, mas não contam). Isso infla artificialmente a média de qualquer dia da semana com muitos dias parados — foi exatamente o erro do estagiário. A dimensão de calendário resolve isso porque ela existe **independente** da tabela de vendas: tem uma linha pra cada dia do período, aconteça venda ou não. Ao fazer `LEFT JOIN` de `orders` **para dentro** do calendário (calendário na esquerda, sempre), todo dia aparece no resultado — com venda real ou com `0` via `COALESCE`, garantindo que o denominador da média reflita o número certo de dias.
+
+**2. O que acontece com a média se um dia da semana tiver muitos dias sem venda?**
+
+Sem o calendário, esses dias somem da conta e a média fica **artificialmente alta**, porque só entram no cálculo os dias "bons" (que tiveram venda). Com o calendário, cada dia sem venda entra como `0` no numerador e soma `+1` no denominador — então quanto mais dias parados um dia da semana tiver, mais essa média é **puxada pra baixo**, refletindo a realidade operacional. É exatamente o que aconteceu com a Quinta-feira nos dados: ela tem o maior número de dias sem nenhuma venda (20 no período todo), e é justamente por isso que a média correta a coloca como o pior dia — um padrão que ficava escondido no cálculo ingênuo do estagiário.
