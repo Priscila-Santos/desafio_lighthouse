@@ -18,6 +18,8 @@ desafio_lighthouse/
 ├── README.md
 ├── lh_nautical_csv/                       <- 24 CSVs brutos, fonte de dados do ERP
 └── respostas/
+    ├── questao-1/
+    │   └── questao1_eda.sql               <- EDA inicial da tabela orders
     ├── questao-2/
     │   ├── schema_generator.py            <- gera o schema.sql a partir dos CSVs
     │   └── schema.sql                     <- DDL de criação das tabelas (PostgreSQL)
@@ -37,6 +39,60 @@ desafio_lighthouse/
         │                                     restrição de formato de upload; guardado aqui)
         └── build_dashboard_data.py        <- script que gera os dados agregados usados no dashboard
 ```
+
+---
+
+## Questão 1 — EDA (tabela `orders`)
+
+### Contexto
+Antes de qualquer modelagem ou decisão, o Sr. Almir quer saber: "posso
+confiar nesses dados?" Análise exploratória inicial usando **apenas** a
+tabela `orders`, sem nenhuma limpeza ou tratamento — só observação e
+agregação.
+
+### Entregável
+- `respostas/questao-1/questao1_eda.sql`
+
+### Resultado
+
+| Métrica | Valor |
+|---|---:|
+| Total de linhas | 48.998 |
+| Data mínima (`created_at`) | 2020-01-01 |
+| Data máxima (`created_at`) | 2026-12-31 |
+| `total` mínimo | R$ 32,62 |
+| `total` máximo | R$ 127.262,02 |
+| `total` médio | **R$ 28.704,99** |
+
+### Diagnóstico (1.3)
+**Os dados são utilizáveis, mas não estão prontos para decisões finais sem
+tratamento e sem relacionamento com outras tabelas.**
+
+- **Outliers em `total`**: pelo critério de IQR (1,5×), **452 pedidos
+  (~0,9% da base)** ficam fora do intervalo esperado (limite superior ≈
+  R$ 82.598), com o máximo chegando a R$ 127.262,02 — mais de 4× a média.
+  Isoladamente, `orders` não permite saber se isso é legítimo (ex.: pedido
+  corporativo grande) ou erro de lançamento — só dá para validar cruzando
+  com `order_items`, conferindo se o valor é consistente com a
+  quantidade/preço dos produtos daquele pedido.
+- **Qualidade dos dados**: `total` está 100% preenchido, sem nulos,
+  negativos ou zeros. As datas (`placed_at`, `created_at`) também não têm
+  nulos e são consistentes entre si. `salesperson_id` é nulo em ~49% das
+  linhas, mas isso é esperado — a empresa vende tanto por `pos` (loja
+  física, com vendedor) quanto `ecommerce` (sem vendedor). O ponto mais
+  crítico é temporal: **existem 4.322 pedidos com `created_at` posterior à
+  data atual** (até 2026-12-31) — inconsistência que compromete qualquer
+  análise de série temporal ou sazonalidade se não for tratada antes.
+- **Pronta para análise?** Não isoladamente. Para responder perguntas de
+  negócio reais (lucro, margem, produtos mais vendidos, comportamento de
+  cliente) é necessário (1) tratamento prévio das datas futuras e
+  investigação dos outliers de `total`, e (2) relacionamento com
+  `order_items` (validar valores e mix de produtos), `customers`
+  (segmentação), `payments` (status financeiro real) e
+  `returns`/`return_items` (saber se o pedido foi devolvido, o que afeta o
+  `total` líquido). A tabela é confiável como fonte bruta, mas decisões
+  estratégicas exigem o pipeline completo de tratamento + join com o
+  restante do schema.
 
 ---
 
@@ -349,6 +405,7 @@ por devolução, clientes de maior lucro acumulado, clientes fiéis (Questão
 
 ## Checklist
 
+- [x] Questão 1 — EDA
 - [x] Questão 2 — Schema
 - [x] Questão 3 — Carregamento
 - [x] Questão 4 — Análise de Clientes
